@@ -1,0 +1,300 @@
+
+Final Project.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000001c8  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  00800060  0000023c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000002  00800060  00800060  0000023c  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  0000023c  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000026c  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000038  00000000  00000000  000002a8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   000005db  00000000  00000000  000002e0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 0000054c  00000000  00000000  000008bb  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   000002c3  00000000  00000000  00000e07  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  00000084  00000000  00000000  000010cc  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    00000344  00000000  00000000  00001150  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    0000009f  00000000  00000000  00001494  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000028  00000000  00000000  00001533  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 93 00 	jmp	0x126	; 0x126 <__vector_1>
+   8:	0c 94 ba 00 	jmp	0x174	; 0x174 <__vector_2>
+   c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  10:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  14:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  18:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  1c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  20:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  24:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  28:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  2c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  30:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  34:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  38:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  3c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  40:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  44:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  48:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  4c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  50:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_clear_bss>:
+  60:	20 e0       	ldi	r18, 0x00	; 0
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	01 c0       	rjmp	.+2      	; 0x6a <.do_clear_bss_start>
+
+00000068 <.do_clear_bss_loop>:
+  68:	1d 92       	st	X+, r1
+
+0000006a <.do_clear_bss_start>:
+  6a:	a2 36       	cpi	r26, 0x62	; 98
+  6c:	b2 07       	cpc	r27, r18
+  6e:	e1 f7       	brne	.-8      	; 0x68 <.do_clear_bss_loop>
+  70:	0e 94 44 00 	call	0x88	; 0x88 <main>
+  74:	0c 94 e2 00 	jmp	0x1c4	; 0x1c4 <_exit>
+
+00000078 <__bad_interrupt>:
+  78:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000007c <PWM_init>:
+
+volatile int PWMduty =0 ; // -255 TO +255 , sign = direction
+
+void PWM_init()
+{
+	TCCR0 = (1<<WGM00) | (1<<WGM01) | (1<<COM01) |(1<<CS01); /* Change the prescaler to make the intution of changing the frequency*/
+  7c:	8a e6       	ldi	r24, 0x6A	; 106
+  7e:	83 bf       	out	0x33, r24	; 51
+	setbit(DDRB,PB3) ;
+  80:	87 b3       	in	r24, 0x17	; 23
+  82:	88 60       	ori	r24, 0x08	; 8
+  84:	87 bb       	out	0x17, r24	; 23
+  86:	08 95       	ret
+
+00000088 <main>:
+}
+
+int main(void)
+{   
+	PWM_init();
+  88:	0e 94 3e 00 	call	0x7c	; 0x7c <PWM_init>
+	
+	// H Bridge control pins Config.
+	DDRB = 0XFF ; // The port that has pins for motor direction control
+  8c:	8f ef       	ldi	r24, 0xFF	; 255
+  8e:	87 bb       	out	0x17, r24	; 23
+	
+	clearbit(DDRD,PD2); //set PD2 as input
+  90:	81 b3       	in	r24, 0x11	; 17
+  92:	8b 7f       	andi	r24, 0xFB	; 251
+  94:	81 bb       	out	0x11, r24	; 17
+	setbit(PORTD,PD3); //Enables PD2 PULL UP
+  96:	82 b3       	in	r24, 0x12	; 18
+  98:	88 60       	ori	r24, 0x08	; 8
+  9a:	82 bb       	out	0x12, r24	; 18
+	clearbit(DDRD,PD3); //set PD3 as input
+  9c:	81 b3       	in	r24, 0x11	; 17
+  9e:	87 7f       	andi	r24, 0xF7	; 247
+  a0:	81 bb       	out	0x11, r24	; 17
+	setbit(PORTD,PD2); //Enables PD2 PULL UP
+  a2:	82 b3       	in	r24, 0x12	; 18
+  a4:	84 60       	ori	r24, 0x04	; 4
+  a6:	82 bb       	out	0x12, r24	; 18
+	
+		
+	/*--------Enable Interrupts-----*/
+	MCUCR = 0x0A ; // Make INT0 & INT1 Falling Edge triggered
+  a8:	8a e0       	ldi	r24, 0x0A	; 10
+  aa:	85 bf       	out	0x35, r24	; 53
+	setbit(GICR,INT0); // Enables INT0 External Interrupt (PD2 : Speed Up switch)
+  ac:	8b b7       	in	r24, 0x3b	; 59
+  ae:	80 64       	ori	r24, 0x40	; 64
+  b0:	8b bf       	out	0x3b, r24	; 59
+	setbit(GICR,INT1); // Enables INT1 External Interrupt (PD3 : Speed Down Switch)
+  b2:	8b b7       	in	r24, 0x3b	; 59
+  b4:	80 68       	ori	r24, 0x80	; 128
+  b6:	8b bf       	out	0x3b, r24	; 59
+		
+	sei(); // Enables the global interrupt
+  b8:	78 94       	sei
+	
+    while (1) 
+    {
+		/* H Bridge Logic */
+		if (PWMduty>0)
+  ba:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+  be:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+  c2:	18 16       	cp	r1, r24
+  c4:	19 06       	cpc	r1, r25
+  c6:	5c f4       	brge	.+22     	; 0xde <main+0x56>
+		{
+			setbit(PORTB,PB0);
+  c8:	88 b3       	in	r24, 0x18	; 24
+  ca:	81 60       	ori	r24, 0x01	; 1
+  cc:	88 bb       	out	0x18, r24	; 24
+			clearbit(PORTB,PB1); //Motor Clockwise
+  ce:	88 b3       	in	r24, 0x18	; 24
+  d0:	8d 7f       	andi	r24, 0xFD	; 253
+  d2:	88 bb       	out	0x18, r24	; 24
+			OCR0 = PWMduty;
+  d4:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+  d8:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+  dc:	8c bf       	out	0x3c, r24	; 60
+		}
+		if (PWMduty<0)
+  de:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+  e2:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+  e6:	99 23       	and	r25, r25
+  e8:	84 f4       	brge	.+32     	; 0x10a <main+0x82>
+		{
+			setbit(PORTB,PB1);
+  ea:	88 b3       	in	r24, 0x18	; 24
+  ec:	82 60       	ori	r24, 0x02	; 2
+  ee:	88 bb       	out	0x18, r24	; 24
+			clearbit(PORTB,PB0); //Motor AntiClockwise
+  f0:	88 b3       	in	r24, 0x18	; 24
+  f2:	8e 7f       	andi	r24, 0xFE	; 254
+  f4:	88 bb       	out	0x18, r24	; 24
+			OCR0 = abs(PWMduty);
+  f6:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+  fa:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+  fe:	99 23       	and	r25, r25
+ 100:	1c f4       	brge	.+6      	; 0x108 <main+0x80>
+ 102:	91 95       	neg	r25
+ 104:	81 95       	neg	r24
+ 106:	91 09       	sbc	r25, r1
+ 108:	8c bf       	out	0x3c, r24	; 60
+		}
+		if (PWMduty==0)
+ 10a:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+ 10e:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 112:	89 2b       	or	r24, r25
+ 114:	91 f6       	brne	.-92     	; 0xba <main+0x32>
+		{
+			clearbit(PORTB,PB1);
+ 116:	88 b3       	in	r24, 0x18	; 24
+ 118:	8d 7f       	andi	r24, 0xFD	; 253
+ 11a:	88 bb       	out	0x18, r24	; 24
+			clearbit(PORTB,PB0); //Motor stops
+ 11c:	88 b3       	in	r24, 0x18	; 24
+ 11e:	8e 7f       	andi	r24, 0xFE	; 254
+ 120:	88 bb       	out	0x18, r24	; 24
+			OCR0 = 0;
+ 122:	1c be       	out	0x3c, r1	; 60
+ 124:	ca cf       	rjmp	.-108    	; 0xba <main+0x32>
+
+00000126 <__vector_1>:
+		}
+    }
+}
+
+ISR(INT0_vect)
+{
+ 126:	1f 92       	push	r1
+ 128:	0f 92       	push	r0
+ 12a:	0f b6       	in	r0, 0x3f	; 63
+ 12c:	0f 92       	push	r0
+ 12e:	11 24       	eor	r1, r1
+ 130:	8f 93       	push	r24
+ 132:	9f 93       	push	r25
+	PWMduty = PWMduty + 25 ;
+ 134:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+ 138:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 13c:	49 96       	adiw	r24, 0x19	; 25
+ 13e:	90 93 61 00 	sts	0x0061, r25	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 142:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
+	if (PWMduty>255) PWMduty = 255 ;
+ 146:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+ 14a:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 14e:	8f 3f       	cpi	r24, 0xFF	; 255
+ 150:	91 05       	cpc	r25, r1
+ 152:	39 f0       	breq	.+14     	; 0x162 <__vector_1+0x3c>
+ 154:	34 f0       	brlt	.+12     	; 0x162 <__vector_1+0x3c>
+ 156:	8f ef       	ldi	r24, 0xFF	; 255
+ 158:	90 e0       	ldi	r25, 0x00	; 0
+ 15a:	90 93 61 00 	sts	0x0061, r25	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 15e:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
+	while(bitisclear(PIND,PD2));
+ 162:	82 9b       	sbis	0x10, 2	; 16
+ 164:	fe cf       	rjmp	.-4      	; 0x162 <__vector_1+0x3c>
+}
+ 166:	9f 91       	pop	r25
+ 168:	8f 91       	pop	r24
+ 16a:	0f 90       	pop	r0
+ 16c:	0f be       	out	0x3f, r0	; 63
+ 16e:	0f 90       	pop	r0
+ 170:	1f 90       	pop	r1
+ 172:	18 95       	reti
+
+00000174 <__vector_2>:
+
+
+ISR(INT1_vect)
+{
+ 174:	1f 92       	push	r1
+ 176:	0f 92       	push	r0
+ 178:	0f b6       	in	r0, 0x3f	; 63
+ 17a:	0f 92       	push	r0
+ 17c:	11 24       	eor	r1, r1
+ 17e:	2f 93       	push	r18
+ 180:	8f 93       	push	r24
+ 182:	9f 93       	push	r25
+	PWMduty = PWMduty - 25 ;
+ 184:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+ 188:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 18c:	49 97       	sbiw	r24, 0x19	; 25
+ 18e:	90 93 61 00 	sts	0x0061, r25	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 192:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
+	if (PWMduty < -255) PWMduty = -255 ;
+ 196:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+ 19a:	90 91 61 00 	lds	r25, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 19e:	81 30       	cpi	r24, 0x01	; 1
+ 1a0:	9f 4f       	sbci	r25, 0xFF	; 255
+ 1a2:	34 f4       	brge	.+12     	; 0x1b0 <__vector_2+0x3c>
+ 1a4:	81 e0       	ldi	r24, 0x01	; 1
+ 1a6:	9f ef       	ldi	r25, 0xFF	; 255
+ 1a8:	90 93 61 00 	sts	0x0061, r25	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 1ac:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
+	while(bitisclear(PIND,PD3)) ;
+ 1b0:	83 9b       	sbis	0x10, 3	; 16
+ 1b2:	fe cf       	rjmp	.-4      	; 0x1b0 <__vector_2+0x3c>
+ 1b4:	9f 91       	pop	r25
+ 1b6:	8f 91       	pop	r24
+ 1b8:	2f 91       	pop	r18
+ 1ba:	0f 90       	pop	r0
+ 1bc:	0f be       	out	0x3f, r0	; 63
+ 1be:	0f 90       	pop	r0
+ 1c0:	1f 90       	pop	r1
+ 1c2:	18 95       	reti
+
+000001c4 <_exit>:
+ 1c4:	f8 94       	cli
+
+000001c6 <__stop_program>:
+ 1c6:	ff cf       	rjmp	.-2      	; 0x1c6 <__stop_program>

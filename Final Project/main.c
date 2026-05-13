@@ -18,12 +18,23 @@
 #define bitisset(reg,bit) ((reg)&(1<<(bit)))
 #define bitisclear(reg,bit) !((reg)&(1<<(bit)))
 
+#define PPR 12 //Obtained from Motor Data Sheet
+#define SAMPL_MS 100 // RPM Sampling window
+
 volatile int PWMduty =0 ; // -255 TO +255 , sign = direction
+volatile int32_t encoderTicks = 0 ; // Controlled by encoder ISR
+volatile float RPM = 0.0 ; // Updated every (SAMPLE_MS) by Timer1 ISR
 
 void PWM_init()
 {
 	TCCR0 = (1<<WGM00) | (1<<WGM01) | (1<<COM01) |(1<<CS01); /* Change the prescaler to make the intution of changing the frequency*/
 	setbit(DDRB,PB3) ;
+}
+void Timer1_init(void)
+{
+	TCCR1B = (1<<WGM12) | (1<<CS12); // CTC Mode with 256 prescaler
+	OCR1A = 6249 ; // (Sample_ms) Compare Value
+	TIMSK |= (1<<OCIE1A);
 }
 
 int main(void)
@@ -47,7 +58,11 @@ int main(void)
 	sei(); // Enables the global interrupt
 	
     while (1) 
-    {
+    {   /* Atomic Read of RPM */
+	    cli();
+	    float currentRPM = RPM ;
+	    sei();
+	    /* H Bridge Logic */
 		/* H Bridge Logic */
 		if (PWMduty>0)
 		{
@@ -67,6 +82,8 @@ int main(void)
 			clearbit(PORTB,PB0); //Motor stops
 			OCR0 = 0;
 		}
+		(void) currentRPM ; 
+		
     }
 }
 
@@ -83,4 +100,15 @@ ISR(INT1_vect)
 	PWMduty = PWMduty - 25 ;
 	if (PWMduty < -255) PWMduty = -255 ;
 	while(bitisclear(PIND,PD3)) ;
+}
+
+ISR (INT2_vect)
+{
+	encoderTicks++;
+}
+
+ISR(TIMER1_COMPA_vect)
+{
+	RPM = ((float)encoderTicks /PPR)*(60000.0f/SAMPL_MS);
+	encoderTicks = 0 ; //Reset for next sampling window
 }
