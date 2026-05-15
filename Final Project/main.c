@@ -4,8 +4,7 @@
  * Created: 5/12/2026 9:01:59 PM
  * Author : Omar Desoky
  */ 
-
-#include <avr/io.h>
+#define F_CPU 16000000UL
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -18,7 +17,7 @@
 #define bitisset(reg,bit) ((reg)&(1<<(bit)))
 #define bitisclear(reg,bit) !((reg)&(1<<(bit)))
 
-#define PPR 12 //Obtained from Motor Data Sheet
+#define PPR 12 //Obtained from Motor Data Sheet With absence of Gear Box
 #define SAMPL_MS 100 // RPM Sampling window
 
 volatile int PWMduty =0 ; // -255 TO +255 , sign = direction
@@ -35,6 +34,55 @@ void Timer1_init(void)
 	TCCR1B = (1<<WGM12) | (1<<CS12); // CTC Mode with 256 prescaler
 	OCR1A = 6249 ; // (Sample_ms) Compare Value
 	TIMSK |= (1<<OCIE1A);
+}
+void lcdCommand(unsigned char cmnd); // forward declaration
+
+void LCDinitialize()
+{
+	DDRA = 0xFF; //Data Port
+	DDRC = 0XFF; //Command Port
+	clearbit(PORTC,PC5);
+	_delay_ms(32);
+	lcdCommand(0x38);
+	lcdCommand(0x0E);
+	lcdCommand(0x01);
+	_delay_ms(32);
+	lcdCommand(0x06); //Return Home
+}
+void lcdCommand(unsigned char cmnd)
+{
+	PORTA = cmnd ;
+	clearbit(PORTC,PC7); // RS = 0 for command
+	clearbit(PORTC,PC6); // RW = 0 for write
+	setbit(PORTC,PC5); //E : Put PortD bit2 HIGH
+	_delay_us(16); // wait to make enable wide
+	clearbit(PORTC,PC5); // Enable pin low to latch the commands
+	_delay_us(1600); // wait to make enable wide
+}
+
+void lcdData(unsigned char data)
+{
+	PORTA = data ;
+	setbit(PORTC,PC7); // RS = 1 for data
+	clearbit(PORTC,PC6); // RW = 0 for write
+	setbit(PORTC,PC5); //E : Put PortD bit2 HIGH
+	_delay_us(16); // wait to make enable wide
+	clearbit(PORTC,PC5); // Enable pin low to latch the commands
+	_delay_us(1600); // wait to make enable wide
+}
+void lcd_setCursor(uint8_t row, uint8_t col)
+{
+	uint8_t addr = (row == 0) ? 0x80 : 0xC0;
+	lcdCommand(addr + col);
+}
+void lcd_print(char *str)
+{
+	uint8_t i = 0;
+	while(str[i] != '\0')
+	{
+		lcdData(str[i]);
+		i++;
+	}
 }
 
 int main(void)
@@ -82,7 +130,18 @@ int main(void)
 			clearbit(PORTB,PB0); //Motor stops
 			OCR0 = 0;
 		}
-		(void) currentRPM ; 
+		/* --- LCD RPM Display --- */
+		char rpmStr[10];
+		dtostrf(currentRPM, 6, 1, rpmStr);  // float ? string, e.g. " 850.0"
+		lcd_setCursor(0, 0);
+		if      (PWMduty > 0)  lcd_print("  DIR: FORWARD  ");
+		else if (PWMduty < 0)  lcd_print("  DIR: REVERSE  ");
+		else                   lcd_print("  MOTOR STOPPED ");
+
+		lcd_setCursor(1, 0);
+		lcd_print("RPM:");
+		lcd_print(rpmStr);
+		lcd_print("   ");   // clear leftover characters
 		
     }
 }

@@ -4,3 +4,7 @@
 
 main.c
 
+src\ASF\mega\boards\stk600\rcx_x\init.c
+
+src\main.c
+
