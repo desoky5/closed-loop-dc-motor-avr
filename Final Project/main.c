@@ -87,7 +87,13 @@ void lcd_print(char *str)
 
 int main(void)
 {   
+	/*---------- Disable JTAG To be able to use PC5 for LCD Enable (credits : Eng.Ahmad AlaaEldin)--------*/
+	
+	MCUCSR |= (1 << JTD); // Set JTD bit to disable JTAG
+	MCUCSR |= (1 << JTD); // Repeat to ensure the command is executed
+	
 	PWM_init();
+	LCDinitialize();
 	
 	// H Bridge control pins Config.
 	DDRB = 0XFF ; // The port that has pins for motor direction control
